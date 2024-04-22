@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Ripe for Analysis</title>
+</head>
+
+<body>
+    <h1>Ripe for Analysis</h1>
+    <h4>Kendra Blalock<br>4/15/2024</h4> 
+
+    <img src="Math_Banana_v1_small.png" alt="Banana doing math">
+    <p>
+    The primary data tools I use at my place of employment have been SQL, SAS, and R. 
+    Learning Python has long been on my to-do list, while somehow never rising to the top. 
+    In January I determined that this would be the year for me to dip my toe in, download the program, and play around with it. 
+    It never ceases to amaze me how challenging the initial experience with a new program can be. 
+    Simple issues can send me on in-depth internet searches in which I never quite resolve the problem but rather uncover multiple work arounds producing something close-ish to my end goal. 
+    Hopefully, if I ignore the question long enough my skill level will eventually catch up, rendering the issue moot. <br>
+    <br>
+    Below is my first attempt at completing a short analysis in Python. 
+    This is not intended to be a shining example of my analysis skills, or really even my ability to follow very, very basic web tutorials. 
+    Rather, it is fully exposed example of what an initial step can look like when trying to learn a new skill. 
+    It isn’t very glamorous, but it exists. 
+    By pulling all of this together, no matter the quality, it provides me with something concrete to build on the next attempt. 
+    That is worth more to me than the actual product.        
+    </p>
+
+    <h3>The Data</h3>
+    <p>
+     Data from this project was sourced from the "<a href="https://www.kaggle.com/datasets/l3llff/banana/data" target="_blank">Banana Quality</a>" dataset posted to kaggle by l3LlFF. 
+     Data was downloaded on March 11th, 2024.    
+    </p>    
+     <h3>The Analysis</h3>   
+    <p>
+    First, I pulled the basic information about the columns available in the Banana dataset using the '.info' command. 
+    I present it below in image form for better styling. 
+    </p>  
+    <p style="background-color:black;color:white;">
+        #import packages<br>
+        import numpy as np<br>
+        import pandas as pd<br>
+        import matplotlib.pyplot as plt<br>
+        <br>
+        #load dataset<br>
+        banana = pd.read_csv(r'banana_quality.csv')<br>
+        <br>
+        #export table with column list in image format<br>
+        buffer = io.StringIO()<br>
+        banana.info(buf=buffer)<br>
+        lines = buffer.getvalue().splitlines()<br>
+        df = (pd.DataFrame([x.split() for x in lines[5:-2]], columns=lines[3].split())<br>
+               .drop('Count',axis=1)<br>
+               .rename(columns={'Non-Null':'Non-Null Count'}))<br>
+        <br>
+        plt.close('all')<br>
+        plt.axis('off')<br>
+        plt.table(cellText=df.values,colWidths = [0.25]*len(df.columns),<br>
+                  rowLabels=df.index,<br>
+                  colLabels=df.columns,<br>
+                  cellLoc = 'center', rowLoc = 'center',<br>
+                  loc='top')<br>
+        plt.savefig('01_info.png',bbox_inches="tight", dpi=200)<br>
+    </p>     
+        <img src="01_info.png" alt="Basic column information for Banana dataset">
+        <br>
+    <p>  
+    Next, I pulled some more detailed information about the dataset using the '.describe()' command.
+    </p>  
+    <p style="background-color:black;color:white;">
+        #export table with column description in image format<br>
+        df2 = banana.describe().transpose()<br>
+        <br>
+        plt.close('all')<br>
+        plt.axis('off')<br>
+        plt.table(cellText=df2.values,colWidths = [0.25]*len(df2.columns),<br>
+                  rowLabels=df2.index,<br>
+                  colLabels=df2.columns,<br>
+                  cellLoc = 'center', rowLoc = 'center',<br>
+                  loc='top')<br>
+        plt.savefig('02_describe.png',bbox_inches="tight", dpi=150)<br>
+    </p> 
+    <img src="02_describe.png" alt="More detailed column information for Banana dataset">
+    <br>      
+    <p>
+    I reviewed the correlations of all of the numeric variables in the dataset. <br>
+    <br>    
+    </p>
+    <p style="background-color:black;color:white;">  
+        #Build a correlation matrix with numeric variables<br>
+        banana_narrow = banana[['Size', 'Weight', 'Sweetness', 'Softness',<br>
+                 'HarvestTime', 'Ripeness', 'Acidity']]<br>
+        matrix = banana_narrow.corr()<br>
+        <br>
+        plt.close('all')<br>
+        plt.axis('off')<br>
+        plt.table(cellText=matrix.values,colWidths = [0.25]*len(matrix.columns),<br>
+                  rowLabels=matrix.index,<br>
+                  colLabels=matrix.columns,<br>
+                  cellLoc = 'center', rowLoc = 'center',<br>
+                  loc='top')<br>
+        plt.savefig('03_correlation.png',bbox_inches="tight", dpi=150)
+    </p>
+    <img src="03_correlation.png" alt="Correlation matrix for Banana dataset">
+    <br>   
+    <p>
+    I plotted the correlation strengths for an alternative approach. <br>
+    <br>
+    </p>
+    <p style="background-color:black;color:white;">
+        #Export a correlation plot<br>
+        alpha = ['Size', 'Weight', 'Sweetness', 'Softness',<br>
+                 'HarvestTime', 'Ripeness', 'Acidity']<br>
+        <br>
+        plt.close('all')<br>
+        figure = plt.figure()<br>
+        axes = figure.add_subplot(111)<br>
+        caxes = axes.matshow(matrix, interpolation ='nearest')<br>
+        figure.colorbar(caxes)<br>
+        axes.set_xticklabels(['']+alpha, rotation = 50)<br>
+        axes.set_yticklabels(['']+alpha, rotation = 50)<br>
+        title_corr = 'Correlation Heatmap of Banana Characteristics'<br>
+        plt.title( title_corr ) <br>
+        plt.savefig('04_heat.png',bbox_inches="tight", dpi=150)<br>
+        <br>
+    </p>
+    <img src="04_heat.png" alt="Correlation Heatmap of Banana Characteristics">
+    <br>
+    <p>
+        Finally, I compared the sweetness rating by the quality (good/bad) of the bananas using a box plot.     
+    </p>
+    <p style="background-color:black;color:white;">
+        #Export a boxplot of sweetness and quality <br>
+        plt.close('all') <br>
+        banana.boxplot(column='Sweetness', by='Quality', patch_artist=True, boxprops = dict(facecolor = "darkgrey"),medianprops = dict(color = "yellow", linewidth = 2)) <br>
+        title_boxplot = 'Sweetness Rating by Quality' <br>
+        plt.title( title_boxplot ) <br>
+        plt.suptitle('')  <br>
+        plt.grid(False) <br>
+        plt.savefig('05_boxplot.png',bbox_inches="tight", dpi=150) <br>
+    </p>
+    <img src="05_boxplot.png" alt="Correlation heatmap for Banana dataset">
+    <br>
+    <h3>The Conclusion</h3>   
+    <p>
+    All in all, this short project showed bunches of promise but ended up being a tough banana to peel. 
+    I learned a little about Python and more about into-level HTML coding. 
+    Looking forward for the next ripe analysis ready to be picked. <br>
+    <br>
+    </p>
+</body>
+
+</html>
